@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.helper.policy.mapper.PolicyMapper">
+
+	<select id="getTotalRow" resultType="Long" parameterType="com.helper.page.util.PageObject">
+		SELECT COUNT(*)
+		FROM policies
+		WHERE 1=1
+		<include refid="search"/>
+	</select>	
+	
+	<select id="policyList" resultType="com.helper.policy.vo.PolicyVO" parameterType="com.helper.page.util.PageObject">
+		SELECT rnum, policy_no, title, url
+		FROM(
+			SELECT rownum rnum, policy_no, title, url
+			FROM(
+				SELECT policy_no, title, url
+				FROM policies
+				WHERE 1=1
+				<include refid="search"/>
+				ORDER BY policy_no DESC
+			)
+		)
+		WHERE rnum BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<sql id="search">
+        <if test="word != null and word != ''">
+            AND title LIKE '%' || #{word} || '%'
+        </if>
+	</sql>	
+	
+</mapper>

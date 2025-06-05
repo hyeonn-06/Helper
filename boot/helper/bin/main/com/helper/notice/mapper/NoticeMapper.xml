@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "C:/kdh/workspace/project_helper/boot/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.helper.notice.mapper.NoticeMapper">
+	<select id="getTotalRow" resultType="Long">
+		SELECT COUNT(*)
+		FROM notice
+		<include refid="search"/>
+	</select>	
+	
+	<select id="list">
+		SELECT rnum, notice_no, title, created_at
+		FROM(
+			SELECT rownum rnum, notice_no, title, created_at
+			FROM(
+				SELECT notice_no, title, created_at
+				FROM notice
+				<include refid="search"/>
+				ORDER BY notice_no DESC
+			)
+		)
+		WHERE rnum BETWEEN #{startRow} AND #{endRow}
+	</select>
+	
+	<sql id="search">
+		<if test="word != null and word != ''.toString()">
+			WHERE 1 = 0
+		<if test="key.indexOf('t') != -1"> or title like '%' || #{word} || '%' </if>
+		<if test="key.indexOf('c') != -1"> or content like '%' || #{word} || '%' </if>
+		</if>
+	</sql>
+	
+	<select id="view">
+		SELECT notice_no, title, content, created_at
+		FROM notice
+		WHERE notice_no = #{notice_no}
+	</select>
+	
+	<insert id="write">
+		INSERT INTO notice (title, content) 
+		VALUES(#{title}, #{content})	
+	</insert>
+	
+	<update id="update">
+		UPDATE notice
+		SET title = #{title}, content = #{content}
+		WHERE notice_no = #{notice_no}
+	</update>
+	
+	<delete id="delete">
+		DELETE FROM notice
+		WHERE notice_no = #{notice_no}
+	</delete>
+	
+</mapper>
